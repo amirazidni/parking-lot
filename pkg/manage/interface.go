@@ -6,7 +6,8 @@ import (
 )
 
 type ManagerService interface {
-	CreateParkingLot(ctx context.Context, slot uint8) error
+	CreateParkingLot(ctx context.Context, slot int) error
 	AllocateParkingLot(ctx context.Context, regisNum, color string) (slotNum int, err error)
 	GetParkingLot(ctx context.Context) (*[]parkinglot.CarSlot, error)
+	LeaveParkingLot(ctx context.Context, slotID int) error
 }

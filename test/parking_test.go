@@ -102,6 +102,16 @@ func TestParking(t *testing.T) {
 			want:    "Allocated slot number: 6",
 			wantErr: nil,
 		},
+		{
+			name: "Leave park no 4",
+			args: args{
+				method:  http.MethodPost,
+				command: "/leave",
+				value:   "/4",
+			},
+			want:    "Slot number 4 is free",
+			wantErr: nil,
+		},
 	}
 	gw := service.GatewayServer{}
 	router := gw.SetupServer()

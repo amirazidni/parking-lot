@@ -19,6 +19,7 @@ func (g *GatewayServer) route() {
 	g.Router.HandleFunc("/create_parking_lot/{value}", g.Server.CreateHandler()).Methods(http.MethodPost)
 	g.Router.HandleFunc("/park/{value}/{attribute}", g.Server.ParkingHandler()).Methods(http.MethodPost)
 	g.Router.HandleFunc("/status", g.Server.GetStatusHandler()).Methods(http.MethodGet)
+	g.Router.HandleFunc("/leave/{value}", g.Server.LeaveParkHandler()).Methods(http.MethodPost)
 }
 
 func (g *GatewayServer) SetupServer() http.Handler {

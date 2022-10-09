@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"parking-lot/pkg/manage"
-	"parking-lot/pkg/util"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -25,12 +24,11 @@ func (s *Server) CreateHandler() http.HandlerFunc {
 		vars := mux.Vars(r)
 		value := vars["value"]
 
-		parkSlot, err := strconv.Atoi(value)
+		parkSlot, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
-			util.ErrorHandlerFatal(err, "invalid slot number")
+			WriteFailResponse(w, http.StatusBadRequest, err, "invalid slot number")
 		}
-		err = s.Manager.CreateParkingLot(r.Context(), uint8(parkSlot))
-		if err != nil {
+		if s.Manager.CreateParkingLot(r.Context(), int(parkSlot)) != nil {
 			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to create new parking lot")
 			return
 		}
@@ -71,6 +69,25 @@ func (s *Server) GetStatusHandler() http.HandlerFunc {
 		}
 		fmt.Printf("Parking lots: %+v \n", parkingLots)
 		responseMsg := fmt.Sprintf("Parking lots: %+v", parkingLots)
+		WriteSuccessResponse(w, responseMsg)
+	}
+}
+
+func (s *Server) LeaveParkHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		slot := vars["value"]
+		slotID, err := strconv.ParseUint(slot, 10, 64)
+		if err != nil {
+			WriteFailResponse(w, http.StatusBadRequest, err, "invalid slot number")
+			return
+		}
+
+		if s.Manager.LeaveParkingLot(r.Context(), int(slotID)) != nil {
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to process leave request")
+			return
+		}
+		responseMsg := fmt.Sprintf("Slot number %v is free", slotID)
 		WriteSuccessResponse(w, responseMsg)
 	}
 }
