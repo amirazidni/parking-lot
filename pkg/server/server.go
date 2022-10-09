@@ -31,7 +31,7 @@ func (s *Server) CreateHandler() http.HandlerFunc {
 		}
 		err = s.Manager.CreateParkingLot(r.Context(), uint8(parkSlot))
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, "failed to create new parking lot")
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to create new parking lot")
 			return
 		}
 		responseMsg := fmt.Sprintf("Created a parking lot with %v slot(s)", parkSlot)
@@ -39,14 +39,38 @@ func (s *Server) CreateHandler() http.HandlerFunc {
 	}
 }
 
-func (s *Server) GetStatusHandler() http.HandlerFunc {
+func (s *Server) ParkingHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		parkingLotQty, err := s.Manager.GetParkingLotStatus(r.Context())
-		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, "failed to get parking lot status")
+		vars := mux.Vars(r)
+		regisNum := vars["value"]
+		color := vars["attribute"]
+
+		if regisNum == "" || color == "" {
+			errMsg := "plate number or color should not empty"
+			err := fmt.Errorf(errMsg)
+			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
 			return
 		}
-		responseMsg := fmt.Sprintf("Len: %v slots", parkingLotQty)
+
+		slot, err := s.Manager.AllocateParkingLot(r.Context(), regisNum, color)
+		if err != nil {
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to allocating parking lot")
+			return
+		}
+		responseMsg := fmt.Sprintf("Allocated slot number: %v", slot)
+		WriteSuccessResponse(w, responseMsg)
+	}
+}
+
+func (s *Server) GetStatusHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		if err != nil {
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			return
+		}
+		fmt.Printf("Parking lots: %+v \n", parkingLots)
+		responseMsg := fmt.Sprintf("Parking lots: %+v", parkingLots)
 		WriteSuccessResponse(w, responseMsg)
 	}
 }

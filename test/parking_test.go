@@ -36,6 +36,72 @@ func TestParking(t *testing.T) {
 			want:    "Created a parking lot with 6 slot(s)",
 			wantErr: nil,
 		},
+		{
+			name: "Allocate parking 1",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1234-RFS",
+				attribute: "/Black",
+			},
+			want:    "Allocated slot number: 1",
+			wantErr: nil,
+		},
+		{
+			name: "Allocate parking 2",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1999-RFD",
+				attribute: "/Green",
+			},
+			want:    "Allocated slot number: 2",
+			wantErr: nil,
+		},
+		{
+			name: "Allocate parking 3",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1000-RFS",
+				attribute: "/Black",
+			},
+			want:    "Allocated slot number: 3",
+			wantErr: nil,
+		},
+		{
+			name: "Allocate parking 4",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1777-RFU",
+				attribute: "/BlueSky",
+			},
+			want:    "Allocated slot number: 4",
+			wantErr: nil,
+		},
+		{
+			name: "Allocate parking 5",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1701-RFL",
+				attribute: "/Blue",
+			},
+			want:    "Allocated slot number: 5",
+			wantErr: nil,
+		},
+		{
+			name: "Allocate parking 6",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1141-RFS",
+				attribute: "/Black",
+			},
+			want:    "Allocated slot number: 6",
+			wantErr: nil,
+		},
 	}
 	gw := service.GatewayServer{}
 	router := gw.SetupServer()

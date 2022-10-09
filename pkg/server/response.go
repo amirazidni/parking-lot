@@ -2,9 +2,11 @@ package server
 
 import (
 	"net/http"
+	"parking-lot/pkg/util"
 )
 
-func WriteFailResponse(w http.ResponseWriter, status int, errorMsg string) {
+func WriteFailResponse(w http.ResponseWriter, status int, err error, errorMsg string) {
+	util.ErrorHandler(err, errorMsg)
 	w.Header().Add("Content-Type", "text/plain")
 	w.WriteHeader(status)
 	errorMsg = errorMsg + "\n\n"

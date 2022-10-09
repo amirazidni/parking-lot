@@ -1,7 +1,7 @@
 package parkinglot
 
 type CarSlot struct {
-	ID          uint64
+	ID          int
 	PlateNumber string
 	Color       string
 }
