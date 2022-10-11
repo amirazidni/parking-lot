@@ -21,6 +21,7 @@ func (g *GatewayServer) route() {
 	g.Router.HandleFunc("/status", g.Server.GetStatusHandler()).Methods(http.MethodGet)
 	g.Router.HandleFunc("/leave/{value}", g.Server.LeaveParkHandler()).Methods(http.MethodPost)
 	g.Router.HandleFunc("/cars_registration_numbers/colour/{value}", g.Server.GetCarsPlateHandler()).Methods(http.MethodGet)
+	g.Router.HandleFunc("/cars_slot/colour/{value}", g.Server.GetCarsSlotHandler()).Methods(http.MethodGet)
 }
 
 func (g *GatewayServer) SetupServer() http.Handler {

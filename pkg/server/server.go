@@ -120,13 +120,43 @@ func (s *Server) GetCarsPlateHandler() http.HandlerFunc {
 			return
 		}
 		var responseMsg string
-		var carsPlates []string
+		var carPlates []string
 		for _, carSlot := range *parkingLots {
 			if carSlot.Color == value {
-				carsPlates = append(carsPlates, carSlot.PlateNumber)
+				carPlates = append(carPlates, carSlot.PlateNumber)
 			}
 		}
-		responseMsg = strings.Join(carsPlates, ", ")
+		responseMsg = strings.Join(carPlates, ", ")
+		WriteSuccessResponse(w, responseMsg)
+		return
+	}
+}
+
+func (s *Server) GetCarsSlotHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		value := strings.TrimSpace(vars["value"])
+
+		if value == "" {
+			errMsg := "colour value should not empty"
+			err := fmt.Errorf(errMsg)
+			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
+			return
+		}
+
+		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		if err != nil {
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			return
+		}
+		var responseMsg string
+		var carSlots []string
+		for _, carSlot := range *parkingLots {
+			if carSlot.Color == value {
+				carSlots = append(carSlots, fmt.Sprintf("%v", carSlot.ID))
+			}
+		}
+		responseMsg = strings.Join(carSlots, ", ")
 		WriteSuccessResponse(w, responseMsg)
 		return
 	}

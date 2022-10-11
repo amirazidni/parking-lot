@@ -160,6 +160,17 @@ func TestParking(t *testing.T) {
 			want:    "B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS",
 			wantErr: nil,
 		},
+		{
+			name: "get cars slot numbers",
+			args: args{
+				method:    http.MethodGet,
+				command:   "/cars_slot",
+				value:     "/colour",
+				attribute: "/Black",
+			},
+			want:    "1, 3, 4, 6",
+			wantErr: nil,
+		},
 	}
 	gw := service.GatewayServer{}
 	router := gw.SetupServer()
