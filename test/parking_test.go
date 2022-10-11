@@ -12,6 +12,12 @@ import (
 )
 
 func TestParking(t *testing.T) {
+	statusResult := `Slot No. Registration No Colour
+1 B-1234-RFS Black
+2 B-1999-RFD Green
+3 B-1000-RFS Black
+5 B-1701-RFL Blue
+6 B-1141-RFS Black`
 
 	type args struct {
 		method    string
@@ -110,6 +116,15 @@ func TestParking(t *testing.T) {
 				value:   "/4",
 			},
 			want:    "Slot number 4 is free",
+			wantErr: nil,
+		},
+		{
+			name: "Status check",
+			args: args{
+				method:  http.MethodGet,
+				command: "/status",
+			},
+			want:    statusResult,
 			wantErr: nil,
 		},
 	}

@@ -67,8 +67,13 @@ func (s *Server) GetStatusHandler() http.HandlerFunc {
 			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
 			return
 		}
-		fmt.Printf("Parking lots: %+v \n", parkingLots)
-		responseMsg := fmt.Sprintf("Parking lots: %+v", parkingLots)
+		responseMsg := fmt.Sprintf("Slot No. Registration No Colour\n")
+		for i, carSlot := range *parkingLots {
+			if carSlot.ID != 0 {
+				item := fmt.Sprintf("%v %s %s\n", i+1, carSlot.PlateNumber, carSlot.Color)
+				responseMsg = fmt.Sprintf("%s%v", responseMsg, item)
+			}
+		}
 		WriteSuccessResponse(w, responseMsg)
 	}
 }
