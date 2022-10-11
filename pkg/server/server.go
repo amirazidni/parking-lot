@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"parking-lot/pkg/manage"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -34,14 +35,15 @@ func (s *Server) CreateHandler() http.HandlerFunc {
 		}
 		responseMsg := fmt.Sprintf("Created a parking lot with %v slot(s)", parkSlot)
 		WriteSuccessResponse(w, responseMsg)
+		return
 	}
 }
 
 func (s *Server) ParkingHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		regisNum := vars["value"]
-		color := vars["attribute"]
+		regisNum := strings.TrimSpace(vars["value"])
+		color := strings.TrimSpace(vars["attribute"])
 
 		if regisNum == "" || color == "" {
 			errMsg := "plate number or color should not empty"
@@ -57,6 +59,7 @@ func (s *Server) ParkingHandler() http.HandlerFunc {
 		}
 		responseMsg := fmt.Sprintf("Allocated slot number: %v", slot)
 		WriteSuccessResponse(w, responseMsg)
+		return
 	}
 }
 
@@ -75,6 +78,7 @@ func (s *Server) GetStatusHandler() http.HandlerFunc {
 			}
 		}
 		WriteSuccessResponse(w, responseMsg)
+		return
 	}
 }
 
@@ -94,5 +98,36 @@ func (s *Server) LeaveParkHandler() http.HandlerFunc {
 		}
 		responseMsg := fmt.Sprintf("Slot number %v is free", slotID)
 		WriteSuccessResponse(w, responseMsg)
+		return
+	}
+}
+
+func (s *Server) GetCarsPlateHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		value := strings.TrimSpace(vars["value"])
+
+		if value == "" {
+			errMsg := "colour value should not empty"
+			err := fmt.Errorf(errMsg)
+			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
+			return
+		}
+
+		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		if err != nil {
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			return
+		}
+		var responseMsg string
+		var carsPlates []string
+		for _, carSlot := range *parkingLots {
+			if carSlot.Color == value {
+				carsPlates = append(carsPlates, carSlot.PlateNumber)
+			}
+		}
+		responseMsg = strings.Join(carsPlates, ", ")
+		WriteSuccessResponse(w, responseMsg)
+		return
 	}
 }
