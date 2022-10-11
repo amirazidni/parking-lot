@@ -171,7 +171,30 @@ func TestParking(t *testing.T) {
 			want:    "1, 3, 4, 6",
 			wantErr: nil,
 		},
+		{
+			name: "get slot number by exist plate number",
+			args: args{
+				method:    http.MethodGet,
+				command:   "/slot_number",
+				value:     "/car_registration_number",
+				attribute: "/B-1701-RFL",
+			},
+			want:    "5",
+			wantErr: nil,
+		},
+		{
+			name: "get slot number by not exist plate number",
+			args: args{
+				method:    http.MethodGet,
+				command:   "/slot_number",
+				value:     "/car_registration_number",
+				attribute: "/RI-1",
+			},
+			want:    "Not found",
+			wantErr: nil,
+		},
 	}
+
 	gw := service.GatewayServer{}
 	router := gw.SetupServer()
 

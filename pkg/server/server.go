@@ -161,3 +161,40 @@ func (s *Server) GetCarsSlotHandler() http.HandlerFunc {
 		return
 	}
 }
+
+func (s *Server) GetSlotNumberHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		value := strings.TrimSpace(vars["value"])
+
+		if value == "" {
+			errMsg := "registration number should not empty"
+			err := fmt.Errorf(errMsg)
+			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
+			return
+		}
+
+		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		if err != nil {
+			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			return
+		}
+		var slot string
+		for _, carSlot := range *parkingLots {
+			if carSlot.PlateNumber == value {
+				slot = fmt.Sprintf("%v", carSlot.ID)
+				break
+			}
+		}
+
+		if slot == "" {
+			errMsg := "Not found"
+			err := fmt.Errorf(errMsg)
+			WriteFailResponse(w, http.StatusNotFound, err, errMsg)
+			return
+		}
+
+		WriteSuccessResponse(w, slot)
+		return
+	}
+}
