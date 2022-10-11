@@ -52,7 +52,7 @@ func (s *Server) ParkingHandler() http.HandlerFunc {
 
 		slot, err := s.Manager.AllocateParkingLot(r.Context(), regisNum, color)
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to allocating parking lot")
+			WriteFailResponse(w, http.StatusInternalServerError, err, err.Error())
 			return
 		}
 		responseMsg := fmt.Sprintf("Allocated slot number: %v", slot)

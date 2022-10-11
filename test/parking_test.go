@@ -127,6 +127,28 @@ func TestParking(t *testing.T) {
 			want:    statusResult,
 			wantErr: nil,
 		},
+		{
+			name: "Allocate parking 4",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1333-RFS",
+				attribute: "/Black",
+			},
+			want:    "Allocated slot number: 4",
+			wantErr: nil,
+		},
+		{
+			name: "Allocate parking full",
+			args: args{
+				method:    http.MethodPost,
+				command:   "/park",
+				value:     "/B-1989-RFU",
+				attribute: "/White",
+			},
+			want:    "Sorry, parking lot is full",
+			wantErr: nil,
+		},
 	}
 	gw := service.GatewayServer{}
 	router := gw.SetupServer()
@@ -141,8 +163,10 @@ func TestParking(t *testing.T) {
 			response := recorder.Result()
 			body, err := io.ReadAll(response.Body)
 
+			responseMsg := string(body)
+			fmt.Println(responseMsg)
 			assert.Equal(t, tt.wantErr, err)
-			assert.Contains(t, string(body), tt.want)
+			assert.Contains(t, responseMsg, tt.want)
 		})
 	}
 }
