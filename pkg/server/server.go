@@ -125,10 +125,10 @@ func (s *Server) BulkHandler() http.HandlerFunc {
 			return
 		}
 		lines := strings.Split(string(body), "\n")
+		var status int
 		for _, line := range lines {
 			var response string
 			var err error
-			var status int
 			words := strings.Split(line, " ")
 			switch words[0] {
 			case "create_parking_lot":
@@ -147,14 +147,14 @@ func (s *Server) BulkHandler() http.HandlerFunc {
 				response, status, err = s.getSlotNumber(r, words[1])
 			default:
 				errMsg := "command not recognize"
-				WriteFailResponse(w, http.StatusBadRequest, fmt.Errorf(errMsg), errMsg)
+				WriteBufferResponse(w, http.StatusBadRequest, fmt.Errorf(errMsg), errMsg)
 				return
 			}
 			if err != nil {
-				WriteFailResponse(w, status, err, response)
+				WriteBufferResponse(w, status, err, response)
 				continue
 			}
-			WriteSuccessResponse(w, response)
+			WriteBufferResponse(w, http.StatusOK, nil, response)
 			continue
 		}
 	}

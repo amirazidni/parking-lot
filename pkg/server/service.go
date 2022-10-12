@@ -28,6 +28,9 @@ func (s *Server) park(r *http.Request, regisNum, color string) (string, int, err
 	}
 
 	slot, err := s.Manager.AllocateParkingLot(r.Context(), regisNum, color)
+	if slot < 0 {
+		return err.Error(), http.StatusOK, err
+	}
 	if err != nil {
 		return err.Error(), http.StatusInternalServerError, err
 	}
@@ -122,5 +125,5 @@ func (s *Server) getSlotNumber(r *http.Request, regisNum string) (string, int, e
 	}
 
 	errMsg := "Not found"
-	return errMsg, http.StatusNotFound, fmt.Errorf(errMsg)
+	return errMsg, http.StatusOK, nil
 }

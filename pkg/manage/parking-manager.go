@@ -26,7 +26,7 @@ func (m *Manager) AllocateParkingLot(ctx context.Context, regisNum, color string
 			return no + 1, nil
 		}
 	}
-	return 0, fmt.Errorf("Sorry, parking lot is full")
+	return -1, fmt.Errorf("Sorry, parking lot is full")
 }
 
 func (m *Manager) GetParkingLot(ctx context.Context) (*[]parkinglot.CarSlot, error) {

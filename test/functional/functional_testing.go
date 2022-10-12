@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -72,6 +73,8 @@ func handleResp(resp *http.Response, expectedPayload string) {
 	}
 
 	if string(body) != expectedPayload {
+		fmt.Println("response: ", string(body))
+		fmt.Println("expected: ", expectedPayload)
 		log.Fatalf("test failed!\n")
 	}
 }
@@ -81,42 +84,42 @@ func testSteps1() []*Case {
 		{
 			Method:          http.MethodPost,
 			Path:            "/create_parking_lot/6",
-			ExpectedPayload: "Created a parking lot with 6 slots",
+			ExpectedPayload: "Created a parking lot with 6 slot(s)\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1234-RFS/Black",
-			ExpectedPayload: "Allocated slot number: 1",
+			ExpectedPayload: "Allocated slot number: 1\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1999-RFD/Green",
-			ExpectedPayload: "Allocated slot number: 2",
+			ExpectedPayload: "Allocated slot number: 2\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1000-RFS/Black",
-			ExpectedPayload: "Allocated slot number: 3",
+			ExpectedPayload: "Allocated slot number: 3\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1777-RFU/BlueSky",
-			ExpectedPayload: "Allocated slot number: 4",
+			ExpectedPayload: "Allocated slot number: 4\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1701-RFL/Blue",
-			ExpectedPayload: "Allocated slot number: 5",
+			ExpectedPayload: "Allocated slot number: 5\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1141-RFS/Black",
-			ExpectedPayload: "Allocated slot number: 6",
+			ExpectedPayload: "Allocated slot number: 6\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/leave/4",
-			ExpectedPayload: "Slot number 4 is free",
+			ExpectedPayload: "Slot number 4 is free\n",
 		},
 		{
 			Method:          http.MethodGet,
@@ -126,32 +129,32 @@ func testSteps1() []*Case {
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1333-RFS/Black",
-			ExpectedPayload: "Allocated slot number: 4",
+			ExpectedPayload: "Allocated slot number: 4\n",
 		},
 		{
 			Method:          http.MethodPost,
 			Path:            "/park/B-1989-RFU/White",
-			ExpectedPayload: "Sorry, parking lot is full",
+			ExpectedPayload: "Sorry, parking lot is full\n",
 		},
 		{
 			Method:          http.MethodGet,
 			Path:            "/cars_registration_numbers/colour/Black",
-			ExpectedPayload: "B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS",
+			ExpectedPayload: "B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS\n",
 		},
 		{
 			Method:          http.MethodGet,
 			Path:            "/cars_slot/colour/Black",
-			ExpectedPayload: "1, 3, 4, 6",
+			ExpectedPayload: "1, 3, 4, 6\n",
 		},
 		{
 			Method:          http.MethodGet,
 			Path:            "/slot_number/car_registration_number/B-1701-RFL",
-			ExpectedPayload: "5",
+			ExpectedPayload: "5\n",
 		},
 		{
 			Method:          http.MethodGet,
 			Path:            "/slot_number/car_registration_number/RI-1",
-			ExpectedPayload: "Not found",
+			ExpectedPayload: "Not found\n",
 		},
 	}
 }
@@ -172,7 +175,8 @@ func status() string {
 2 B-1999-RFD Green
 3 B-1000-RFS Black
 5 B-1701-RFL Blue
-6 B-1141-RFS Black`
+6 B-1141-RFS Black
+`
 }
 
 func bulkReq() string {
@@ -190,12 +194,11 @@ park B-1989-RFU BlueSky
 registration_numbers_for_cars_with_colour Black
 slot_numbers_for_cars_with_colour Black
 slot_number_for_registration_number B-1701-RFL
-slot_number_for_registration_number RI-1
-`
+slot_number_for_registration_number RI-1`
 }
 
 func bulkResp() string {
-	return `Created a parking lot with 6 slots
+	return `Created a parking lot with 6 slot(s)
 Allocated slot number: 1
 Allocated slot number: 2
 Allocated slot number: 3
