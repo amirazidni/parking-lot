@@ -120,7 +120,6 @@ func (s *Server) GetSlotNumberHandler() http.HandlerFunc {
 func (s *Server) BulkHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
-		// ctx := r.Context()
 		if err != nil {
 			WriteFailResponse(w, http.StatusBadRequest, err, "failed to read body request")
 			return

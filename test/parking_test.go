@@ -234,10 +234,8 @@ func TestParking(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// var requestBody *string
 
 			file, _ := os.OpenFile(tt.args.body, os.O_RDWR, 0644)
-			// requestBody, _ := ioutil.ReadAll(file)
 
 			url := fmt.Sprintf("http://localhost:8080%s%s%s", tt.args.command, tt.args.value, tt.args.attribute)
 			request := httptest.NewRequest(tt.args.method, url, file)
@@ -246,9 +244,8 @@ func TestParking(t *testing.T) {
 
 			response := recorder.Result()
 			body, err := io.ReadAll(response.Body)
-
 			responseMsg := string(body)
-			fmt.Print(responseMsg)
+
 			assert.Equal(t, tt.wantErr, err)
 			assert.Contains(t, responseMsg, tt.want)
 		})
