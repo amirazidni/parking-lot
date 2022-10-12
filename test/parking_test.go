@@ -5,25 +5,49 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"parking-lot/cmd/service"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParking(t *testing.T) {
-	statusResult := `Slot No. Registration No Colour
+const statusResult = `Slot No. Registration No Colour
 1 B-1234-RFS Black
 2 B-1999-RFD Green
 3 B-1000-RFS Black
 5 B-1701-RFL Blue
 6 B-1141-RFS Black`
 
+const bulkResult = `Created a parking lot with 6 slot(s)
+Allocated slot number: 1
+Allocated slot number: 2
+Allocated slot number: 3
+Allocated slot number: 4
+Allocated slot number: 5
+Allocated slot number: 6
+Slot number 4 is free
+Slot No. Registration No Colour
+1 B-1234-RFS Black
+2 B-1999-RFD Green
+3 B-1000-RFS Black
+5 B-1701-RFL Blue
+6 B-1141-RFS Black
+Allocated slot number: 4
+Sorry, parking lot is full
+B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS
+1, 3, 4, 6
+5
+Not found`
+
+func TestParking(t *testing.T) {
+
 	type args struct {
 		method    string
 		command   string
 		value     string
 		attribute string
+		body      string
 	}
 
 	tests := []struct {
@@ -193,6 +217,16 @@ func TestParking(t *testing.T) {
 			want:    "Not found",
 			wantErr: nil,
 		},
+		{
+			name: "bulk insert command",
+			args: args{
+				method:  http.MethodPost,
+				command: "/bulk",
+				body:    "bulk.txt",
+			},
+			want:    bulkResult,
+			wantErr: nil,
+		},
 	}
 
 	gw := service.GatewayServer{}
@@ -200,8 +234,13 @@ func TestParking(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// var requestBody *string
+
+			file, _ := os.OpenFile(tt.args.body, os.O_RDWR, 0644)
+			// requestBody, _ := ioutil.ReadAll(file)
+
 			url := fmt.Sprintf("http://localhost:8080%s%s%s", tt.args.command, tt.args.value, tt.args.attribute)
-			request := httptest.NewRequest(tt.args.method, url, nil)
+			request := httptest.NewRequest(tt.args.method, url, file)
 			recorder := httptest.NewRecorder()
 			router.ServeHTTP(recorder, request)
 
@@ -209,7 +248,7 @@ func TestParking(t *testing.T) {
 			body, err := io.ReadAll(response.Body)
 
 			responseMsg := string(body)
-			fmt.Println(responseMsg)
+			fmt.Print(responseMsg)
 			assert.Equal(t, tt.wantErr, err)
 			assert.Contains(t, responseMsg, tt.want)
 		})

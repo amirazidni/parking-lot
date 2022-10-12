@@ -2,9 +2,9 @@ package server
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"parking-lot/pkg/manage"
-	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -24,17 +24,12 @@ func (s *Server) CreateHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		value := vars["value"]
-
-		parkSlot, err := strconv.ParseUint(value, 10, 64)
+		response, status, err := s.create(r, value)
 		if err != nil {
-			WriteFailResponse(w, http.StatusBadRequest, err, "invalid slot number")
-		}
-		if s.Manager.CreateParkingLot(r.Context(), int(parkSlot)) != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to create new parking lot")
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-		responseMsg := fmt.Sprintf("Created a parking lot with %v slot(s)", parkSlot)
-		WriteSuccessResponse(w, responseMsg)
+		WriteSuccessResponse(w, response)
 		return
 	}
 }
@@ -44,40 +39,24 @@ func (s *Server) ParkingHandler() http.HandlerFunc {
 		vars := mux.Vars(r)
 		regisNum := strings.TrimSpace(vars["value"])
 		color := strings.TrimSpace(vars["attribute"])
-
-		if regisNum == "" || color == "" {
-			errMsg := "plate number or color should not empty"
-			err := fmt.Errorf(errMsg)
-			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
-			return
-		}
-
-		slot, err := s.Manager.AllocateParkingLot(r.Context(), regisNum, color)
+		response, status, err := s.park(r, regisNum, color)
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, err.Error())
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-		responseMsg := fmt.Sprintf("Allocated slot number: %v", slot)
-		WriteSuccessResponse(w, responseMsg)
+		WriteSuccessResponse(w, response)
 		return
 	}
 }
 
 func (s *Server) GetStatusHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		response, status, err := s.getStatus(r)
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-		responseMsg := fmt.Sprintf("Slot No. Registration No Colour\n")
-		for i, carSlot := range *parkingLots {
-			if carSlot.ID != 0 {
-				item := fmt.Sprintf("%v %s %s\n", i+1, carSlot.PlateNumber, carSlot.Color)
-				responseMsg = fmt.Sprintf("%s%v", responseMsg, item)
-			}
-		}
-		WriteSuccessResponse(w, responseMsg)
+		WriteSuccessResponse(w, response)
 		return
 	}
 }
@@ -86,18 +65,12 @@ func (s *Server) LeaveParkHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slot := vars["value"]
-		slotID, err := strconv.ParseUint(slot, 10, 64)
+		response, status, err := s.leavePark(r, slot)
 		if err != nil {
-			WriteFailResponse(w, http.StatusBadRequest, err, "invalid slot number")
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-
-		if s.Manager.LeaveParkingLot(r.Context(), int(slotID)) != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to process leave request")
-			return
-		}
-		responseMsg := fmt.Sprintf("Slot number %v is free", slotID)
-		WriteSuccessResponse(w, responseMsg)
+		WriteSuccessResponse(w, response)
 		return
 	}
 }
@@ -106,28 +79,12 @@ func (s *Server) GetCarsPlateHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		value := strings.TrimSpace(vars["value"])
-
-		if value == "" {
-			errMsg := "colour value should not empty"
-			err := fmt.Errorf(errMsg)
-			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
-			return
-		}
-
-		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		response, status, err := s.getCarsPlate(r, value)
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-		var responseMsg string
-		var carPlates []string
-		for _, carSlot := range *parkingLots {
-			if carSlot.Color == value {
-				carPlates = append(carPlates, carSlot.PlateNumber)
-			}
-		}
-		responseMsg = strings.Join(carPlates, ", ")
-		WriteSuccessResponse(w, responseMsg)
+		WriteSuccessResponse(w, response)
 		return
 	}
 }
@@ -136,28 +93,12 @@ func (s *Server) GetCarsSlotHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		value := strings.TrimSpace(vars["value"])
-
-		if value == "" {
-			errMsg := "colour value should not empty"
-			err := fmt.Errorf(errMsg)
-			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
-			return
-		}
-
-		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		response, status, err := s.getCarsSlot(r, value)
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-		var responseMsg string
-		var carSlots []string
-		for _, carSlot := range *parkingLots {
-			if carSlot.Color == value {
-				carSlots = append(carSlots, fmt.Sprintf("%v", carSlot.ID))
-			}
-		}
-		responseMsg = strings.Join(carSlots, ", ")
-		WriteSuccessResponse(w, responseMsg)
+		WriteSuccessResponse(w, response)
 		return
 	}
 }
@@ -166,35 +107,56 @@ func (s *Server) GetSlotNumberHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		value := strings.TrimSpace(vars["value"])
-
-		if value == "" {
-			errMsg := "registration number should not empty"
-			err := fmt.Errorf(errMsg)
-			WriteFailResponse(w, http.StatusBadRequest, err, errMsg)
-			return
-		}
-
-		parkingLots, err := s.Manager.GetParkingLot(r.Context())
+		response, status, err := s.getSlotNumber(r, value)
 		if err != nil {
-			WriteFailResponse(w, http.StatusInternalServerError, err, "failed to get parking lot status")
+			WriteFailResponse(w, status, err, response)
 			return
 		}
-		var slot string
-		for _, carSlot := range *parkingLots {
-			if carSlot.PlateNumber == value {
-				slot = fmt.Sprintf("%v", carSlot.ID)
-				break
-			}
-		}
-
-		if slot == "" {
-			errMsg := "Not found"
-			err := fmt.Errorf(errMsg)
-			WriteFailResponse(w, http.StatusNotFound, err, errMsg)
-			return
-		}
-
-		WriteSuccessResponse(w, slot)
+		WriteSuccessResponse(w, response)
 		return
+	}
+}
+
+func (s *Server) BulkHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		// ctx := r.Context()
+		if err != nil {
+			WriteFailResponse(w, http.StatusBadRequest, err, "failed to read body request")
+			return
+		}
+		lines := strings.Split(string(body), "\n")
+		for _, line := range lines {
+			var response string
+			var err error
+			var status int
+			words := strings.Split(line, " ")
+			switch words[0] {
+			case "create_parking_lot":
+				response, status, err = s.create(r, words[1])
+			case "park":
+				response, status, err = s.park(r, words[1], words[2])
+			case "leave":
+				response, status, err = s.leavePark(r, words[1])
+			case "status":
+				response, status, err = s.getStatus(r)
+			case "registration_numbers_for_cars_with_colour":
+				response, status, err = s.getCarsPlate(r, words[1])
+			case "slot_numbers_for_cars_with_colour":
+				response, status, err = s.getCarsSlot(r, words[1])
+			case "slot_number_for_registration_number":
+				response, status, err = s.getSlotNumber(r, words[1])
+			default:
+				errMsg := "command not recognize"
+				WriteFailResponse(w, http.StatusBadRequest, fmt.Errorf(errMsg), errMsg)
+				return
+			}
+			if err != nil {
+				WriteFailResponse(w, status, err, response)
+				continue
+			}
+			WriteSuccessResponse(w, response)
+			continue
+		}
 	}
 }
