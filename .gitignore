@@ -1,2 +1,4 @@
 /vendor
 /.vscode
+/bin
+docker/parking-lot/parking-lot
