@@ -33,6 +33,6 @@ public class MainController {
 
     @GetMapping("/status")
     public String getStatusHandler() {
-        return "Hello, this is status endpoint";
+        return mainService.getParkingLotStatus();
     }
 }
