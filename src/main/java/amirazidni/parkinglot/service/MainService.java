@@ -52,4 +52,36 @@ public class MainService {
 
         return String.format("Allocated slot number: %d\n", no);
     }
+
+    public String leavePark(String slotNumber) {
+        if (slotNumber.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "invalid slot number");
+        }
+
+        int no = Integer.parseInt(slotNumber);
+
+        int result = parkingLotRepository.leaveParkingLot(no);
+
+        switch (result) {
+            case 0:
+                throw EmptyParkingLot;
+            case -1:
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "selected slot is unavailable");
+            default:
+                break;
+        }
+
+        if (result != no) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "failed to process leave request");
+        }
+
+        return String.format("Slot number %d is free\n", result);
+    }
+
 }

@@ -12,5 +12,5 @@ public interface ParkingLotRepository {
 
     CarSlot[] getParkingLot();
 
-    void leaveParkingLot(int id);
+    int leaveParkingLot(int id);
 }

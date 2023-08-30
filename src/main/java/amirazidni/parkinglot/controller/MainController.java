@@ -26,6 +26,11 @@ public class MainController {
         return mainService.parkCar(value, attribute);
     }
 
+    @PostMapping("/leave/{value}")
+    public String leaveHandler(@PathVariable("value") String value) {
+        return mainService.leavePark(value);
+    }
+
     @GetMapping("/status")
     public String getStatusHandler() {
         return "Hello, this is status endpoint";

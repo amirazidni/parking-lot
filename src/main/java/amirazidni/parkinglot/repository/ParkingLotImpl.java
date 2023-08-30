@@ -38,9 +38,17 @@ public class ParkingLotImpl implements ParkingLotRepository {
         return -1;
     }
 
-    @Override
-    public void leaveParkingLot(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'leaveParkingLot'");
+    public int leaveParkingLot(int slotID) {
+        if (this.parkingLot == null) {
+            return 0;
+        }
+
+        if (slotID > this.parkingLot.length) {
+            return -1;
+        }
+
+        this.parkingLot[slotID - 1] = null;
+
+        return slotID;
     }
 }
