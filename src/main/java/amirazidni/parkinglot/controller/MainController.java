@@ -19,6 +19,13 @@ public class MainController {
         return mainService.createParkingLot(value);
     }
 
+    @PostMapping("/park/{value}/{attribute}")
+    public String parkHandler(
+            @PathVariable("value") String value,
+            @PathVariable("attribute") String attribute) {
+        return mainService.parkCar(value, attribute);
+    }
+
     @GetMapping("/status")
     public String getStatusHandler() {
         return "Hello, this is status endpoint";

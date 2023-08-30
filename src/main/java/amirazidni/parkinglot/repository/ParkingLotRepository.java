@@ -5,12 +5,12 @@ import org.springframework.stereotype.Repository;
 import amirazidni.parkinglot.model.CarSlot;
 
 @Repository
-public class ParkingLotRepository {
+public interface ParkingLotRepository {
+    int createNew(int val);
 
-    private CarSlot[] parkingLot;
+    int allocateParkingLot(String regisNum, String color);
 
-    public int createNew(int val) {
-        this.parkingLot = new CarSlot[val];
-        return this.parkingLot.length;
-    }
+    CarSlot[] getParkingLot();
+
+    void leaveParkingLot(int id);
 }

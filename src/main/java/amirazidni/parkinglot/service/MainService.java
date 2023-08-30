@@ -13,6 +13,10 @@ public class MainService {
     @Autowired
     private ParkingLotRepository parkingLotRepository;
 
+    private final ResponseStatusException EmptyParkingLot = new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Empty parking lot");
+
     public String createParkingLot(String value) {
         int qty = Integer.parseInt(value);
 
@@ -27,4 +31,25 @@ public class MainService {
         return String.format("Created a parking lot with %s slots\n", total);
     }
 
+    public String parkCar(String regisNum, String color) {
+        if (regisNum.trim().isEmpty() || color.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "plate number or color should not empty");
+        }
+        int no = parkingLotRepository.allocateParkingLot(regisNum, color);
+
+        switch (no) {
+            case 0:
+                throw EmptyParkingLot;
+            case -1:
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Sorry, parking lot is full");
+            default:
+                break;
+        }
+
+        return String.format("Allocated slot number: %d\n", no);
+    }
 }
