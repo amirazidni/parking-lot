@@ -4,11 +4,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.StreamUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -129,5 +135,26 @@ class ParkinglotApplicationTests {
 					String response = result.getResponse().getContentAsString();
 					assertEquals("Not found\n", response);
 				});
+
 	}
+
+	@Test
+	void bulkTest() throws Exception {
+		ClassPathResource bulkClassPathResource = new ClassPathResource("bulk.txt");
+		byte[] body = bulkClassPathResource.getContentAsByteArray();
+
+		ClassPathResource expectedPathResource = new ClassPathResource("expected-bulk.txt");
+		InputStream inputStream = expectedPathResource.getInputStream();
+		String expected = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8) + "\n";
+
+		mockMvc.perform(post("/bulk")
+				.contentType(MediaType.TEXT_PLAIN_VALUE)
+				.content(body))
+				.andExpectAll(status().isOk())
+				.andDo(result -> {
+					String response = result.getResponse().getContentAsString();
+					assertEquals(expected, response);
+				});
+	}
+
 }

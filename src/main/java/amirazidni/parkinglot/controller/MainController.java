@@ -1,9 +1,11 @@
 package amirazidni.parkinglot.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import amirazidni.parkinglot.service.MainService;
@@ -50,4 +52,10 @@ public class MainController {
     public String getSlotNumberHandler(@PathVariable("value") String value) {
         return mainService.getSlotNumber(value);
     }
+
+    @PostMapping(path = "/bulk", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public String bulkHandler(@RequestBody String request) {
+        return mainService.bulk(request);
+    }
+
 }

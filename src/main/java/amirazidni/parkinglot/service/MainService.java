@@ -143,6 +143,53 @@ public class MainService {
         return String.format("%d\n", slot);
     }
 
+    public String bulk(String bodyRaw) {
+        if (bodyRaw.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Body request should not be empty");
+        }
+
+        String[] lines = bodyRaw.split("\n");
+
+        List<String> responses = new ArrayList<String>();
+
+        for (String line : lines) {
+            String[] words = line.split(" ");
+
+            try {
+                switch (words[0]) {
+                    case "create_parking_lot":
+                        responses.add(this.createParkingLot(words[1]));
+                        break;
+                    case "park":
+                        responses.add(this.parkCar(words[1], words[2]));
+                        break;
+                    case "leave":
+                        responses.add(this.leavePark(words[1]));
+                        break;
+                    case "status":
+                        responses.add(this.getParkingLotStatus());
+                        break;
+                    case "registration_numbers_for_cars_with_colour":
+                        responses.add(this.getCarsPlate(words[1]));
+                        break;
+                    case "slot_numbers_for_cars_with_colour":
+                        responses.add(this.getCarsSlot(words[1]));
+                        break;
+                    case "slot_number_for_registration_number":
+                        responses.add(this.getSlotNumber(words[1]));
+                        break;
+                    default:
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "command not recognize");
+                }
+            } catch (ResponseStatusException e) {
+                responses.add(e.getReason() + "\n");
+            }
+        }
+        return String.join("", responses);
+    }
+
     // util function
     private String getCarsByColor(String colour, ReturnCase returnCase) {
         if (colour.trim().isEmpty()) {

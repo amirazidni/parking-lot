@@ -1,0 +1,15 @@
+create_parking_lot 6
+park B-1234-RFS Black
+park B-1999-RFD Green
+park B-1000-RFS Black
+park B-1777-RFU BlueSky
+park B-1701-RFL Blue
+park B-1141-RFS Black
+leave 4
+status
+park B-1333-RFS Black
+park B-1989-RFU BlueSky
+registration_numbers_for_cars_with_colour Black
+slot_numbers_for_cars_with_colour Black
+slot_number_for_registration_number B-1701-RFL
+slot_number_for_registration_number RI-1
