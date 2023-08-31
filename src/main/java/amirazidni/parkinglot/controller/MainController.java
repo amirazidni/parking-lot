@@ -45,4 +45,9 @@ public class MainController {
     public String getCarsSlotHandler(@PathVariable("value") String value) {
         return mainService.getCarsSlot(value);
     }
+
+    @GetMapping("/slot_number/car_registration_number/{value}")
+    public String getSlotNumberHandler(@PathVariable("value") String value) {
+        return mainService.getSlotNumber(value);
+    }
 }

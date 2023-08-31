@@ -120,6 +120,29 @@ public class MainService {
         return getCarsByColor(colour, ReturnCase.ID);
     }
 
+    public String getSlotNumber(String plateNumber) {
+        if (plateNumber.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Registration number should not be empty");
+        }
+        CarSlot[] parkingLot = parkingLotRepository.getParkingLot();
+
+        int slot = 0;
+        for (CarSlot carSlot : parkingLot) {
+            if (carSlot.getPlateNumber().equals(plateNumber)) {
+                slot = carSlot.getId();
+                break;
+            }
+        }
+
+        if (slot == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+        }
+
+        return String.format("%d\n", slot);
+    }
+
     // util function
     private String getCarsByColor(String colour, ReturnCase returnCase) {
         if (colour.trim().isEmpty()) {
