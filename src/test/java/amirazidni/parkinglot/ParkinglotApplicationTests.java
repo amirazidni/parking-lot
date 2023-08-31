@@ -99,5 +99,35 @@ class ParkinglotApplicationTests {
 					assertEquals(tests[5], response);
 				});
 
+		// 6) GET PLATE NUMBERS BY COLOR
+		mockMvc.perform(get("/cars_registration_numbers/colour/Black"))
+				.andExpectAll(status().isOk())
+				.andDo(result -> {
+					String response = result.getResponse().getContentAsString();
+					assertEquals("B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS\n", response);
+				});
+
+		// 7) GET SLOT NUMBERS BY COLOR
+		mockMvc.perform(get("/cars_slot/colour/Black"))
+				.andExpectAll(status().isOk())
+				.andDo(result -> {
+					String response = result.getResponse().getContentAsString();
+					assertEquals("1, 3, 4, 6\n", response);
+				});
+
+		// 8) GET A SLOT NUMBER BY PLATE NUMBER
+		mockMvc.perform(get("/slot_number/car_registration_number/B-1701-RFL"))
+				.andExpectAll(status().isOk())
+				.andDo(result -> {
+					String response = result.getResponse().getContentAsString();
+					assertEquals("5\n", response);
+				});
+
+		mockMvc.perform(get("/slot_number/car_registration_number/RI-1"))
+				.andExpectAll(status().isNotFound())
+				.andDo(result -> {
+					String response = result.getResponse().getContentAsString();
+					assertEquals("Not found\n", response);
+				});
 	}
 }
