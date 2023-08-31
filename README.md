@@ -1,4 +1,5 @@
 # Parking Lot Quiz (in Go)
+
 I own a parking lot that can hold up to 'n' cars at any given point in time.
 Each slot is given a number starting at 1 increasing with the increasing distance from the entry point in steps of one.
 I want to create an automated ticketing system in the cloud that allows my customers to use my parking lot without human intervention.
@@ -8,6 +9,7 @@ The customer should be allocated to a parking slot which is nearest to the entry
 At the exit the customer returns the ticket which then marks the slot they were using as being available.
 
 Due to government regulation, the system should provide me with the ability to find out:
+
 - Registration numbers of all cars of a particular colour.
 - Slot number of a car with a given registration number is parked.
 - Slot numbers of all slots where cars of a particular colour are parked.
@@ -15,6 +17,7 @@ Due to government regulation, the system should provide me with the ability to f
 We interact with the system via a set of endpoints which produce a specific output.
 Please take a look at the example below, which includes all the endpoints you need to support - they're selfexplanatory.
 The system should allow input in two ways. Just to clarify, the same codebase should support both modes of input - we don't want two distinct submissions.
+
 1. It should provide us with several HTTP APIs as the commands.
 2. It should accept a POST HTTP Request that accepts plain text payload which contains all the commands and reads the commands from the payload.
 
@@ -26,7 +29,7 @@ Assuming a parking lot with 6 slots, the following commands should be run in seq
 typing them in a tool like cURL and should produce output as described below the command.
 
 ```bash
-$ curl -X POST localhost:8080/create_parking_lot/6
+$ curl -X POST http://localhost:8080/create_parking_lot/6
 Created a parking lot with 6 slots
 ```
 
@@ -108,11 +111,13 @@ Not found
 ### HTTP API Request with Plain Text Payload
 
 Path:
+
 ```bash
 $ curl -X POST http://localhost:8080/bulk
 ```
 
 Request body:
+
 ```bash
 create_parking_lot 6
 park B-1234-RFS Black
@@ -132,6 +137,7 @@ slot_number_for_registration_number RI-1
 ```
 
 Expected response:
+
 ```bash
 Created a parking lot with 6 slots
 Allocated slot number: 1
@@ -162,11 +168,13 @@ Make sure Go >= 1.15.3 already installed and clone this repo at GOPATH
 ### Functional testing
 
 1. Run the main service:
+
 ```bash
 go run .
 ```
 
 2. Run the functional testing:
+
 ```bash
 go run test/functional/functional_testing.go -url=http://localhost:8080 -case=1
 ```
@@ -176,17 +184,21 @@ go run test/functional/functional_testing.go -url=http://localhost:8080 -case=2
 ```
 
 ### API testing via shell script
+
 1. Set script to executed allowed
+
 ```bash
 sudo chmod +x test.sh
 ```
 
 2. Run script test
+
 ```bash
 ./test.sh
 ```
 
 3. Output
+
 ```bash
 Created a parking lot with 6 slot(s)
 Allocated slot number: 1
