@@ -116,6 +116,10 @@ public class MainService {
         return getCarsByColor(colour, ReturnCase.PlateNumber);
     }
 
+    public String getCarsSlot(String colour) {
+        return getCarsByColor(colour, ReturnCase.ID);
+    }
+
     // util function
     private String getCarsByColor(String colour, ReturnCase returnCase) {
         if (colour.trim().isEmpty()) {

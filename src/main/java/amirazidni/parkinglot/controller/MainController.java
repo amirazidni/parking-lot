@@ -40,4 +40,9 @@ public class MainController {
     public String getCarsPlateHandler(@PathVariable("value") String value) {
         return mainService.getCarsPlate(value);
     }
+
+    @GetMapping("/cars_slot/colour/{value}")
+    public String getCarsSlotHandler(@PathVariable("value") String value) {
+        return mainService.getCarsSlot(value);
+    }
 }
