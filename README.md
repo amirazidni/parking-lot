@@ -29,7 +29,7 @@ Assuming a parking lot with 6 slots, the following commands should be run in seq
 typing them in a tool like cURL and should produce output as described below the command.
 
 ```bash
-$ curl -X POST localhost:8080/create_parking_lot/6
+$ curl -X POST http://localhost:8080/create_parking_lot/6
 Created a parking lot with 6 slots
 ```
 
@@ -113,13 +113,7 @@ Not found
 Path:
 
 ```bash
-$ curl -X POST http://localhost:8080/bulk
-```
-
-Request body:
-
-```bash
-create_parking_lot 6
+$ curl -X POST http://localhost:8080/bulk -H "Content-Type: text/plain" -d 'create_parking_lot 6
 park B-1234-RFS Black
 park B-1999-RFD Green
 park B-1000-RFS Black
@@ -133,7 +127,7 @@ park B-1989-RFU BlueSky
 registration_numbers_for_cars_with_colour Black
 slot_numbers_for_cars_with_colour Black
 slot_number_for_registration_number B-1701-RFL
-slot_number_for_registration_number RI-1
+slot_number_for_registration_number RI-1'
 ```
 
 Expected response:
@@ -159,8 +153,75 @@ B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS
 1, 3, 4, 6
 5
 Not found
+
 ```
 
 ## How to Run
 
-Todo: implement this
+Make sure Java and Maven already installed.
+
+### Run test
+
+```bash
+mvn test
+```
+
+### API testing via shell script
+
+1. Set script to executed allowed
+
+```bash
+sudo chmod +x test.sh
+```
+
+2. Run script test
+
+```bash
+./test.sh
+```
+
+3. Output
+
+```bash
+Created a parking lot with 6 slot(s)
+Allocated slot number: 1
+Allocated slot number: 2
+Allocated slot number: 3
+Allocated slot number: 4
+Allocated slot number: 5
+Allocated slot number: 6
+Slot number 4 is free
+Slot No. Registration No Colour
+1 B-1234-RFS Black
+2 B-1999-RFD Green
+3 B-1000-RFS Black
+5 B-1701-RFL Blue
+6 B-1141-RFS Black
+Allocated slot number: 4
+Sorry, parking lot is full
+B-1234-RFS, B-1000-RFS, B-1333-RFS, B-1141-RFS
+1, 3, 4, 6
+5
+Not found
+
+```
+
+### Run development mode
+
+```bash
+mvn spring-boot:run
+```
+
+### Run the production ready
+
+1. Package the file
+
+```bash
+mvn clean compile package
+```
+
+2. Run the jar file
+
+```bash
+java -jar target/parkinglot-1.0.jar
+```
