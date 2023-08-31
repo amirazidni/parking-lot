@@ -35,4 +35,9 @@ public class MainController {
     public String getStatusHandler() {
         return mainService.getParkingLotStatus();
     }
+
+    @GetMapping("/cars_registration_numbers/colour/{value}")
+    public String getCarsPlateHandler(@PathVariable("value") String value) {
+        return mainService.getCarsPlate(value);
+    }
 }

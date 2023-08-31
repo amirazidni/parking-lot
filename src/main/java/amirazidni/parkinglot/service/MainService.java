@@ -11,6 +11,11 @@ import org.springframework.web.server.ResponseStatusException;
 import amirazidni.parkinglot.model.CarSlot;
 import amirazidni.parkinglot.repository.ParkingLotRepository;
 
+enum ReturnCase {
+    ID,
+    PlateNumber,
+}
+
 @Service
 public class MainService {
 
@@ -105,6 +110,41 @@ public class MainService {
         }
 
         return String.join("\n", responses) + "\n";
+    }
+
+    public String getCarsPlate(String colour) {
+        return getCarsByColor(colour, ReturnCase.PlateNumber);
+    }
+
+    // util function
+    private String getCarsByColor(String colour, ReturnCase returnCase) {
+        if (colour.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "colour value should not be empty");
+        }
+
+        List<String> cars = new ArrayList<String>();
+        CarSlot[] parkingLot = parkingLotRepository.getParkingLot();
+        for (CarSlot carSlot : parkingLot) {
+            if (carSlot.getColor().equals(colour)) {
+                switch (returnCase) {
+                    case ID:
+                        cars.add(String.format("%d", carSlot.getId()));
+                        break;
+                    case PlateNumber:
+                        cars.add(carSlot.getPlateNumber());
+                        break;
+                    default:
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "not recognized");
+                }
+            }
+        }
+
+        String responses = String.join(", ", cars) + "\n";
+        return responses;
     }
 
 }
